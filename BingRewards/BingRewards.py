@@ -201,7 +201,7 @@ def main():
             print(">>>>> Exception countered: ", e)
 
         # Sleep for a random moments before start for new account
-        sleep_time = random.randint(1, 300)
+        sleep_time = random.randint(30, 300)
         print(">> Sleeping {}s".format(sleep_time))
         sleep(sleep_time)
 
