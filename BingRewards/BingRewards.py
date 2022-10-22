@@ -1,3 +1,4 @@
+import shlex
 from asyncio.subprocess import PIPE
 import sys
 import os
@@ -5,6 +6,8 @@ import logging
 import base64
 import json
 import random
+import subprocess
+from requests import get
 from tabnanny import verbose
 from time import sleep, time
 from options import parse_search_args
@@ -23,12 +26,22 @@ DEBUG = True
 
 
 def connect_vpn():
-    import  subprocess
-    command = subprocess.call(["echo", "1195", "|", "/usr/sbin/openconnect",  "nls.lkserver.info:2087", "--user=like53007100", "--servercert=pin-sha256:2VAgAdd6ZRQYCmoSttHF3XxxmQiCgZU/LD/YSZmQf54", "--passwd-on-stdin"])
-    command.stdin.write("1195")
-    ls_output = subprocess.Popen(["sleep", "30"])
-    ls_output.communicate()  # Will block for 30 seconds
-    # sudo openconnect nls.lkserver.info:2087 --user=like53007100 --passwd-on-stdin --servercert=pin-sha256:2VAgAdd6ZRQYCmoSttHF3XxxmQiCgZU/LD/YSZmQf54
+    subprocess.Popen(shlex.split("/home/ehsan/Workspace/bing-rewards/openconnect.sh"))
+
+def disconnect_vpn():
+    os.system("sudo killall openconnect")
+
+def get_host_ip():
+    return get('https://api.ipify.org').content.decode('utf8')
+
+def has_ip_changed(host_ip):
+    current_ip = get_host_ip()
+    if host_ip == current_ip:
+        print('>> System valid IP address is: {}. Retrying...'.format(current_ip))
+        return False
+
+    print('>> Connected to the VPN server. IP: {}'.format(current_ip))
+    return True
 
 def _log_hist_log(hist_log):
     logging.basicConfig(
@@ -206,4 +219,18 @@ def main():
         sleep(sleep_time)
 
 if __name__ == "__main__":
+    host_ip = get_host_ip()
+
+    connect_vpn()
+
+    counter = 0
+    while has_ip_changed(host_ip) is False:
+        sleep(5)
+        counter += 1
+
+        if counter >= 10:
+            print(">> VPN not connected properly. Exit.")
+            exit()
+
     main()
+    disconnect_vpn()
