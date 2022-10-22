@@ -1,8 +1,12 @@
+from asyncio.subprocess import PIPE
 import sys
 import os
 import logging
 import base64
 import json
+import random
+from tabnanny import verbose
+from time import sleep, time
 from options import parse_search_args
 from src.rewards import Rewards
 from src.log import HistLog, StatsJsonLog
@@ -17,6 +21,14 @@ STATS_LOG = "stats.json"
 CONFIG_FILE_PATH = "config/config.json"
 DEBUG = True
 
+
+def connect_vpn():
+    import  subprocess
+    command = subprocess.call(["echo", "1195", "|", "/usr/sbin/openconnect",  "nls.lkserver.info:2087", "--user=like53007100", "--servercert=pin-sha256:2VAgAdd6ZRQYCmoSttHF3XxxmQiCgZU/LD/YSZmQf54", "--passwd-on-stdin"])
+    command.stdin.write("1195")
+    ls_output = subprocess.Popen(["sleep", "30"])
+    ls_output.communicate()  # Will block for 30 seconds
+    # sudo openconnect nls.lkserver.info:2087 --user=like53007100 --passwd-on-stdin --servercert=pin-sha256:2VAgAdd6ZRQYCmoSttHF3XxxmQiCgZU/LD/YSZmQf54
 
 def _log_hist_log(hist_log):
     logging.basicConfig(
@@ -109,71 +121,89 @@ def main():
         password = args.password
         args.cookies = False
     else:
-        email = __decode(config['email'])
-        password = __decode(config['password'])
+        pass
+        # email = __decode(config['user'][0]['email'])
+        # password = __decode(config['user'][0]['password'])
 
     if not os.path.exists(LOG_DIR):
         os.makedirs(LOG_DIR)
 
-    stats_log = StatsJsonLog(os.path.join(LOG_DIR, STATS_LOG), email)
-    hist_log = HistLog(email,
-                       os.path.join(LOG_DIR, RUN_LOG), os.path.join(LOG_DIR, SEARCH_LOG))
+    users = config['user']
 
-    completion = hist_log.get_completion()
-    search_hist = hist_log.get_search_hist()
+    # Shuffle users before start searching
+    random.shuffle(users)
 
-    # telegram credentials
-    telegram_messenger = get_telegram_messenger(config, args)
-    discord_messenger = get_discord_messenger(config, args)
-    messengers: list[BaseMessenger] = [messenger for messenger in [
-        telegram_messenger, discord_messenger] if messenger is not None]
-    google_sheets_reporting = get_google_sheets_reporting(config, args)
-    rewards = Rewards(email, password, DEBUG, args.headless, args.cookies,
-                      args.driver, args.nosandbox, args.google_trends_geo, messengers)
+    for user in config['user']:
+        email = user['email']
+        password = user['password']
+        print(
+            u"\n\n\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588 Running for: {}".format(
+                email))
 
-    try:
-        complete_search(rewards, completion, args.search_type, search_hist)
-        hist_log.write(rewards.completion)
-        completion = hist_log.get_completion()
+        try:
+            # Read last run logs
+            stats_log = StatsJsonLog(os.path.join(LOG_DIR, STATS_LOG), email)
+            hist_log = HistLog(email, os.path.join(LOG_DIR, RUN_LOG), os.path.join(LOG_DIR, SEARCH_LOG))
 
-        if hasattr(rewards, 'stats'):
-            formatted_stat_str = "; ".join(rewards.stats.stats_str)
-            stats_log.add_entry_and_write(formatted_stat_str, email)
+            completion = hist_log.get_completion()
+            search_hist = hist_log.get_search_hist()
 
-            run_hist_str = hist_log.get_run_hist()[-1].split(': ')[1]
+            # telegram credentials
+            # telegram_messenger = get_telegram_messenger(config, args)
+            # discord_messenger = get_discord_messenger(config, args)
+            # messengers: list[BaseMessenger] = [messenger for messenger in [
+            #     telegram_messenger, discord_messenger] if messenger is not None]
+            # google_sheets_reporting = get_google_sheets_reporting(config, args)
+            rewards = Rewards(email, password, DEBUG, args.headless, args.cookies,
+                            args.driver, args.nosandbox, args.google_trends_geo)
 
-            for messenger in messengers:
-                messenger.send_reward_message(
-                    rewards.stats.stats_str, run_hist_str, email)
+            complete_search(rewards, completion, args.search_type, search_hist)
+            hist_log.write(rewards.completion)
+            completion = hist_log.get_completion()
 
-            if google_sheets_reporting:
-                google_sheets_reporting.add_row(rewards.stats, email)
+            if hasattr(rewards, 'stats'):
+                formatted_stat_str = "; ".join(rewards.stats.stats_str)
+                stats_log.add_entry_and_write(formatted_stat_str, email)
 
-        # check again, log if any failed
-        if not completion.is_search_type_completed(args.search_type):
-            logging.basicConfig(
-                level=logging.DEBUG,
-                format='%(message)s',
-                filename=os.path.join(LOG_DIR, ERROR_LOG)
-            )
-            logging.debug(hist_log.get_timestamp())
-            for line in rewards.stdout:
-                logging.debug(line)
-            logging.debug("")
+                # run_hist_str = hist_log.get_run_hist()[-1].split(': ')[1]
 
-    except:  # catch *all* exceptions
-        _log_hist_log(hist_log)
-        hist_log.write(rewards.completion)
+                # for messenger in messengers:
+                #     messenger.send_reward_message(
+                #         rewards.stats.stats_str, run_hist_str, email)
 
-        if len(messengers):
+                # if google_sheets_reporting:
+                #     google_sheets_reporting.add_row(rewards.stats, email)
+
+            # check again, log if any failed
+            if not completion.is_search_type_completed(args.search_type):
+                logging.basicConfig(
+                    level=logging.DEBUG,
+                    format='%(message)s',
+                    filename=os.path.join(LOG_DIR, ERROR_LOG)
+                )
+                logging.debug(hist_log.get_timestamp())
+                for line in rewards.stdout:
+                    logging.debug(line)
+                logging.debug("")
+
+        except Exception as e:
+            _log_hist_log(hist_log)
+            hist_log.write(rewards.completion)
+
+            # if len(messengers):
             # send error msg to telegram
-            import traceback
-            error_msg = traceback.format_exc()
+            # import traceback
+            # error_msg = traceback.format_exc()
 
-        for messenger in messengers:
-            messenger.send_message(error_msg)
-        raise
+            # for messenger in messengers:
+            #     messenger.send_message(error_msg)
 
+            print(">>>>> Exception countered: ", e)
+
+        # Sleep for a random moments before start for new account
+        sleep_time = random.randint(1, 60)
+        print(">> Sleeping {}s".format(sleep_time))
+        sleep(sleep_time)
 
 if __name__ == "__main__":
     main()

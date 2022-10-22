@@ -1282,7 +1282,8 @@ class Rewards:
             raise
 
     def __get_available_points(self):
-        return self.get_dashboard_data()['userStatus']['availablePoints']
+        dashboard_data = self.get_dashboard_data()
+        return dashboard_data['userStatus']['availablePoints']
 
     def __complete_action(self, action, description, mandatory_device_type=None, **action_kwargs):
         self.__sys_out(f"Starting {description}", 1)
@@ -1384,7 +1385,9 @@ class Rewards:
             device_type = self.driver_factory.WEB_DEVICE
 
         self.__get_driver(device_type)
+
         init_points = self.__get_available_points()
+        print("###### Total points earned: ", init_points)
 
         if search_type in ('remaining', 'all'):
             self.complete_remaining_searches(search_type, prev_completion)
@@ -1403,7 +1406,7 @@ class Rewards:
         elif search_type == 'both':
             self.complete_both_searches()
 
-        self.__print_stats(init_points)
+        # self.__print_stats(init_points)
         self.driver.quit()
 
 
