@@ -162,13 +162,10 @@ def main():
             search_hist = hist_log.get_search_hist()
 
             # telegram credentials
-            # telegram_messenger = get_telegram_messenger(config, args)
-            # discord_messenger = get_discord_messenger(config, args)
-            # messengers: list[BaseMessenger] = [messenger for messenger in [
-            #     telegram_messenger, discord_messenger] if messenger is not None]
-            # google_sheets_reporting = get_google_sheets_reporting(config, args)
+            telegram_messenger = get_telegram_messenger(config, args)
+            messengers: list[BaseMessenger] = [messenger for messenger in [telegram_messenger] if messenger is not None]
             rewards = Rewards(email, password, DEBUG, args.headless, args.cookies,
-                            args.driver, args.nosandbox, args.google_trends_geo)
+                            args.driver, args.nosandbox, args.google_trends_geo, messengers)
 
             complete_search(rewards, completion, args.search_type, search_hist)
             hist_log.write(rewards.completion)
@@ -178,14 +175,10 @@ def main():
                 formatted_stat_str = "; ".join(rewards.stats.stats_str)
                 stats_log.add_entry_and_write(formatted_stat_str, email)
 
-                # run_hist_str = hist_log.get_run_hist()[-1].split(': ')[1]
+                run_hist_str = hist_log.get_run_hist()[-1].split(': ')[1]
 
-                # for messenger in messengers:
-                #     messenger.send_reward_message(
-                #         rewards.stats.stats_str, run_hist_str, email)
-
-                # if google_sheets_reporting:
-                #     google_sheets_reporting.add_row(rewards.stats, email)
+                for messenger in messengers:
+                    messenger.send_reward_message(rewards.stats.stats_str, run_hist_str, email)
 
             # check again, log if any failed
             if not completion.is_search_type_completed(args.search_type):
@@ -203,13 +196,10 @@ def main():
             _log_hist_log(hist_log)
             hist_log.write(rewards.completion)
 
-            # if len(messengers):
-            # send error msg to telegram
-            # import traceback
-            # error_msg = traceback.format_exc()
-
-            # for messenger in messengers:
-            #     messenger.send_message(error_msg)
+            import traceback
+            error_msg = traceback.format_exc()
+            for messenger in messengers:
+                messenger.send_message(error_msg)
 
             print(">>>>> Exception countered: ", e)
 
@@ -219,18 +209,18 @@ def main():
         sleep(sleep_time)
 
 if __name__ == "__main__":
-    host_ip = get_host_ip()
-
-    connect_vpn()
-
-    counter = 0
-    while has_ip_changed(host_ip) is False:
-        sleep(5)
-        counter += 1
-
-        if counter >= 10:
-            print(">> VPN not connected properly. Exit.")
-            exit()
-
+    # host_ip = get_host_ip()
+    #
+    # connect_vpn()
+    #
+    # counter = 0
+    # while has_ip_changed(host_ip) is False:
+    #     sleep(5)
+    #     counter += 1
+    #
+    #     if counter >= 10:
+    #         print(">> VPN not connected properly. Exit.")
+    #         exit()
+    #
     main()
-    disconnect_vpn()
+    # disconnect_vpn()
