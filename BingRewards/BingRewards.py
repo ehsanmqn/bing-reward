@@ -73,8 +73,8 @@ def get_config():
 
 
 def get_telegram_messenger(config, args):
-    telegram_api_token = __decode(config.get('telegram_api_token'))
-    telegram_userid = __decode(config.get('telegram_userid'))
+    telegram_api_token = config.get('telegram_api_token')
+    telegram_userid = config.get('telegram_userid')
     telegram_messenger = None
 
     if not args.telegram or not telegram_api_token or not telegram_userid:
@@ -150,7 +150,7 @@ def main():
         email = user['email']
         password = user['password']
         print(
-            u"\n\n\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588 Running for: {}".format(
+            u">>>>>> Running for: {}".format(
                 email))
 
         try:
