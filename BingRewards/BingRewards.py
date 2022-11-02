@@ -178,8 +178,7 @@ def main():
 
             telegram_messenger = get_telegram_messenger(config, args)
             if telegram_messenger is not None:
-                telegram_messenger.send_message("Initial:{}".format(rewards.init_points))
-                telegram_messenger.send_message("Final:{}".format(rewards.final_points))
+                telegram_messenger.send_message("End of rewarding for {} \nInitial:{} Final: {}".format(email, rewards.init_points, rewards.final_points))
 
             if hasattr(rewards, 'stats'):
                 formatted_stat_str = "; ".join(rewards.stats.stats_str)
