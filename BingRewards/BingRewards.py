@@ -77,12 +77,10 @@ def get_telegram_messenger(config, args):
     telegram_userid = config.get('telegram_userid')
     telegram_messenger = None
 
-    if not args.telegram or not telegram_api_token or not telegram_userid:
-        if args.telegram:
-            print('You have selected Telegram, but config file is missing `api token` or `userid`. Please re-run setup.py with additional arguments if you want Telegram notifications.')
+    if not telegram_api_token or not telegram_userid:
+        print('You have selected Telegram, but config file is missing `api token` or `userid`. Please re-run setup.py with additional arguments if you want Telegram notifications.')
     else:
-        telegram_messenger = TelegramMessenger(
-            telegram_api_token, telegram_userid)
+        telegram_messenger = TelegramMessenger(telegram_api_token, telegram_userid)
     return telegram_messenger
 
 
@@ -149,9 +147,12 @@ def main():
     for user in config['user']:
         email = user['email']
         password = user['password']
-        print(
-            u">>>>>> Running for: {}".format(
-                email))
+        print(u">>>>>> Running for: {}".format(email))
+        # telegram credentials
+        telegram_messenger = get_telegram_messenger(config, args)
+
+        if telegram_messenger is not None:
+            telegram_messenger.send_message("Start for {}".format(email))
 
         try:
             # Read last run logs
@@ -161,8 +162,6 @@ def main():
             completion = hist_log.get_completion()
             search_hist = hist_log.get_search_hist()
 
-            # telegram credentials
-            telegram_messenger = get_telegram_messenger(config, args)
             messengers: list[BaseMessenger] = [messenger for messenger in [telegram_messenger] if messenger is not None]
             rewards = Rewards(email, password, DEBUG, args.headless, args.cookies,
                             args.driver, args.nosandbox, args.google_trends_geo, messengers)
@@ -177,8 +176,8 @@ def main():
 
                 run_hist_str = hist_log.get_run_hist()[-1].split(': ')[1]
 
-                for messenger in messengers:
-                    messenger.send_reward_message(rewards.stats.stats_str, run_hist_str, email)
+                if telegram_messenger is not None:
+                    telegram_messenger.send_reward_message(rewards.stats.stats_str, run_hist_str, email)
 
             # check again, log if any failed
             if not completion.is_search_type_completed(args.search_type):
@@ -198,8 +197,9 @@ def main():
 
             import traceback
             error_msg = traceback.format_exc()
-            for messenger in messengers:
-                messenger.send_message(error_msg)
+
+            if telegram_messenger is not None:
+                telegram_messenger.send_message(error_msg)
 
             print(">>>>> Exception countered: ", e)
 
