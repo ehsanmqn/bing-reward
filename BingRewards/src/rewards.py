@@ -48,6 +48,8 @@ class Rewards:
         self.driver_factory = driver_factory
         self.google_trends_geo = google_trends_geo
         self.messengers = messengers if messengers is not None else []
+        self.final_points = 0
+        self.init_points = 0
 
     def __get_sys_out_prefix(self, lvl, end):
         prefix = " " * (self.__SYS_OUT_TAB_LEN * (lvl - 1) - (lvl - 1))
@@ -105,8 +107,9 @@ class Rewards:
                 ).click()
                 message = "Waiting for user to approve sign-in request. In Microsoft Authenticator, please select approve."
                 self.__sys_out(message, 2)
-                for messenger in self.messengers:
-                    messenger.send_message(message)
+
+                # for messenger in self.messengers:
+                #     messenger.send_message(message)
 
             except TimeoutException:
                 pass
@@ -151,8 +154,8 @@ class Rewards:
                 authenticator_code = self.driver.find_element(By.ID, "idRemoteNGC_DisplaySign").text
                 message = f"Waiting for user to approve 2FA, please select {authenticator_code} in Microsoft Authenticator"
                 self.__sys_out(message, 2)
-                for messenger in self.messengers:
-                    messenger.send_message(message)
+                # for messenger in self.messengers:
+                #     messenger.send_message(message)
                 WebDriverWait(self.driver, 30).until(
                     EC.url_contains("https://login.live.com/ppsecure")
                     )
@@ -1386,8 +1389,7 @@ class Rewards:
 
         self.__get_driver(device_type)
 
-        init_points = self.__get_available_points()
-        print("###### Total points earned: ", init_points)
+        self.init_points = self.__get_available_points()
 
         if search_type in ('remaining', 'all'):
             self.complete_remaining_searches(search_type, prev_completion)
@@ -1406,8 +1408,9 @@ class Rewards:
         elif search_type == 'both':
             self.complete_both_searches()
 
-        # self.__print_stats(init_points)
+        self.final_points = self.__get_available_points()
         self.driver.quit()
+
 
 
 class RewardStats:
