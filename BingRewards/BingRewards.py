@@ -1,5 +1,4 @@
 import shlex
-from asyncio.subprocess import PIPE
 import sys
 import os
 import logging
@@ -8,12 +7,11 @@ import json
 import random
 import subprocess
 from requests import get
-from tabnanny import verbose
-from time import sleep, time
+from time import sleep
 from options import parse_search_args
 from src.rewards import Rewards
 from src.log import HistLog, StatsJsonLog
-from src.messengers import TelegramMessenger, DiscordMessenger, BaseMessenger
+from src.messengers import TelegramMessenger, DiscordMessenger
 from src.google_sheets_reporting import GoogleSheetsReporting
 
 LOG_DIR = "logs"
@@ -151,9 +149,9 @@ def main():
         password = user['password']
         print("######## Start rewarding for: {}".format(email))
 
-        telegram_messenger = get_telegram_messenger(config, args)
-        if telegram_messenger is not None:
-            telegram_messenger.send_message("Start rewarding for {}".format(email))
+        # telegram_messenger = get_telegram_messenger(config, args)
+        # if telegram_messenger is not None:
+        #     telegram_messenger.send_message("Start rewarding for {}".format(email))
 
         try:
             # Read last run logs
