@@ -125,7 +125,7 @@ def get_google_sheets_reporting(config, args):
 
 
 def complete_search(rewards, completion, search_type, search_hist):
-    print(f"\nYou selected {search_type}")
+    print("######## You selected {}".format(search_type))
     if not completion.is_search_type_completed(search_type):
         rewards.complete_search_type(search_type, completion, search_hist)
     else:

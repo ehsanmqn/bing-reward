@@ -1390,7 +1390,7 @@ class Rewards:
         self.__get_driver(device_type)
 
         self.init_points = self.__get_available_points()
-
+        print("######## 1394")
         if search_type in ('remaining', 'all'):
             self.complete_remaining_searches(search_type, prev_completion)
         # if either web/mobile, check if edge is complete
