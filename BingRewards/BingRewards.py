@@ -178,7 +178,7 @@ def main():
             completion = hist_log.get_completion()
             search_hist = hist_log.get_search_hist()
 
-            telegram_messenger = get_telegram_messenger(config, args)
+            telegram_messenger = get_telegram_messenger(config)
             if telegram_messenger is not None:
                 messenger = [telegram_messenger]
 
@@ -191,7 +191,7 @@ def main():
 
             print("######## Initial: {} Final: {}".format(rewards.init_points, rewards.final_points))
 
-            telegram_messenger = get_telegram_messenger(config, args)
+            telegram_messenger = get_telegram_messenger(config)
             if telegram_messenger is not None:
                 telegram_messenger.send_message("End of rewarding for {} \nInitial:{} Final: {}".format(email, rewards.init_points, rewards.final_points))
 
@@ -201,7 +201,7 @@ def main():
 
                 run_hist_str = hist_log.get_run_hist()[-1].split(': ')[1]
 
-                telegram_messenger = get_telegram_messenger(config, args)
+                telegram_messenger = get_telegram_messenger(config)
                 if telegram_messenger is not None:
                     telegram_messenger.send_reward_message(rewards.stats.stats_str, run_hist_str, email)
 
@@ -218,16 +218,6 @@ def main():
                 logging.debug("")
 
         except Exception as e:
-            _log_hist_log(hist_log)
-            hist_log.write(rewards.completion)
-
-            import traceback
-            error_msg = traceback.format_exc()
-
-            telegram_messenger = get_telegram_messenger(config, args)
-            if telegram_messenger is not None:
-                telegram_messenger.send_message(error_msg)
-
             print(">>>>> Exception countered: ", e)
 
         # Sleep for a random moments before start for new account
