@@ -69,8 +69,14 @@ def get_config():
             "'config.json' file does not exist. Please run `python setup.py`.\nIf you are a previous user, existing credentials will be automatically ported over.")
     return config
 
+def get_vpn_config(config):
+    cisco_username = config.get('cisco_username')
+    cisco_password = config.get('cisco_password')
+    cisco_server = config.get('cisco_server')
 
-def get_telegram_messenger(config, args):
+    return cisco_server, cisco_username, cisco_password
+
+def get_telegram_messenger(config):
     telegram_api_token = config.get('telegram_api_token')
     telegram_userid = config.get('telegram_userid')
     telegram_messenger = None
