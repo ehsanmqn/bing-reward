@@ -24,7 +24,10 @@ DEBUG = True
 
 
 def connect_vpn():
-    subprocess.Popen(shlex.split("../openconnect.sh"))
+    config = get_config()
+    vpn_command = 'echo "{}" | openconnect {} --user={} --passwd-on'.format(config["cisco_password"], config["cisco_server"], config["cisco_username"])
+    # subprocess.Popen(shlex.split(vpn_command))
+    subprocess.Popen(vpn_command, shell=True)
 
 def disconnect_vpn():
     os.system("sudo killall openconnect")
@@ -233,21 +236,20 @@ def main():
         sleep(sleep_time)
 
 if __name__ == "__main__":
-    host_ip = get_host_ip()
+    if use_vpn():
+        host_ip = get_host_ip()
+        connect_vpn()
 
-    print(use_vpn())
+        counter = 0
+        while has_ip_changed(host_ip) is False:
+            sleep(5)
+            counter += 1
 
-    #
-    # connect_vpn()
-    #
-    # counter = 0
-    # while has_ip_changed(host_ip) is False:
-    #     sleep(5)
-    #     counter += 1
-    #
-    #     if counter >= 10:
-    #         print(">> VPN not connected properly. Exit.")
-    #         exit()
-    #
-    # main()
-    # disconnect_vpn()
+            if counter >= 10:
+                print(">> VPN not connected properly. Exit.")
+                exit()
+
+    main()
+
+    if use_vpn():
+        disconnect_vpn()
