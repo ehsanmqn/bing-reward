@@ -65,7 +65,10 @@ def get_parent_parser():
 
 
 def parse_setup_args():
-    ''' Responsible for parsing setup.py args '''
+    '''
+    Responsible for parsing setup.py args
+    '''
+
     # main search arguments
     parent_parser = get_parent_parser()
     setup_parser = argparse.ArgumentParser(parents=[parent_parser])
@@ -114,11 +117,10 @@ def parse_search_args():
     Search options satisfy this criteria:
     One- and only one- of the args in the search_group must be used
     Source: https://stackoverflow.com/a/15301183
-
     Email and pw, using getpass, https://stackoverflow.com/a/28610617
-
     Headless, https://stackoverflow.com/a/15008806
     '''
+
     # main search arguments
     parent_parser = get_parent_parser()
     search_parser = argparse.ArgumentParser(parents=[parent_parser])
