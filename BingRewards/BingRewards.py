@@ -24,7 +24,7 @@ DEBUG = True
 
 
 def connect_vpn():
-    subprocess.Popen(shlex.split("/home/ehsan/Workspace/bing-rewards/openconnect.sh"))
+    subprocess.Popen(shlex.split("../openconnect.sh"))
 
 def disconnect_vpn():
     os.system("sudo killall openconnect")
