@@ -87,6 +87,23 @@ def parse_setup_args():
         help="telegram api token to store in config, use with no argument to trigger a secure prompt",
     )
 
+    # telegram related arguments
+    setup_parser.add_argument(
+        '-vpn',
+        '--vpn_server',
+        help='Cisco VPN server'
+    )
+    setup_parser.add_argument(
+        '-vu',
+        '--vpn_username',
+        help="Cisco server username",
+    )
+    setup_parser.add_argument(
+        '-vp',
+        '--vpn_password',
+        help="Cisco server password",
+    )
+
     args = setup_parser.parse_args()
     check_is_valid_email_pw_combo(args)
     return args
