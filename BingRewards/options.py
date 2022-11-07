@@ -87,7 +87,7 @@ def parse_setup_args():
         help="telegram api token to store in config, use with no argument to trigger a secure prompt",
     )
 
-    # telegram related arguments
+    # Cisco related arguments
     setup_parser.add_argument(
         '-cs',
         '--cisco_server',
