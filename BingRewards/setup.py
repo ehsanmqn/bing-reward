@@ -1,7 +1,11 @@
 """
-Please read before editing: Any additional credential options should be added to options.py inside parse_setup_args()
-
+Please read before editing: Any additional credential options should be
+added to options.py inside parse_setup_args()
 setup.py will simply parse these command line options.
+
+probably a better way of doing this, this is to ensure:
+1) setup.py can be run from any directory
+2) options import don't fail
 """
 import os
 import getpass
@@ -9,7 +13,6 @@ import base64
 import sys
 import json
 
-#probably a better way of doing this, this is to ensure 1) setup.py can be run from any directory 2) options import don't fail
 dir_run_from = os.getcwd()
 top_dir = os.path.dirname(sys.argv[0])
 if top_dir and top_dir != dir_run_from:
@@ -56,15 +59,14 @@ def write(credentials):
 def main():
     """
     Creates/updates the config file.
-
     When no command line args, will prompt the user for their email / password.
-
     Otherwise, the commnad line arguments are used to update the config.
 
     Will only update:
     - the arguments specified by the user.
     - if the new values are different from the existing ones
     """
+
     # json config file exists
     if os.path.isfile(CONFIG_FILE_PATH):
         with open(CONFIG_FILE_PATH) as f:
