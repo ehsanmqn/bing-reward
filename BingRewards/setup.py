@@ -24,7 +24,8 @@ DEPRECATED_CONFIG_FILE_PATH = os.path.join("BingRewards/src/config.py")
 
 
 def __encode(s):
-    return base64.b64encode(s.encode()).decode()
+    return s
+    # return base64.b64encode(s.encode()).decode()
 
 
 def __get_args(existing_credentials):
