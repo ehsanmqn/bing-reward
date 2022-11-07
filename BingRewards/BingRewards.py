@@ -32,6 +32,14 @@ def disconnect_vpn():
 def get_host_ip():
     return get('https://api.ipify.org').content.decode('utf8')
 
+def use_vpn():
+    try:
+        if get_config()["cisco_server"] != "":
+            return True
+    except:
+        return False
+    return False
+
 def has_ip_changed(host_ip):
     current_ip = get_host_ip()
     if host_ip == current_ip:
@@ -225,7 +233,10 @@ def main():
         sleep(sleep_time)
 
 if __name__ == "__main__":
-    # host_ip = get_host_ip()
+    host_ip = get_host_ip()
+
+    print(use_vpn())
+
     #
     # connect_vpn()
     #
@@ -238,5 +249,5 @@ if __name__ == "__main__":
     #         print(">> VPN not connected properly. Exit.")
     #         exit()
     #
-    main()
+    # main()
     # disconnect_vpn()
