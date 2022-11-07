@@ -89,18 +89,18 @@ def parse_setup_args():
 
     # telegram related arguments
     setup_parser.add_argument(
-        '-vpn',
-        '--vpn_server',
+        '-cs',
+        '--cisco_server',
         help='Cisco VPN server'
     )
     setup_parser.add_argument(
-        '-vu',
-        '--vpn_username',
+        '-cu',
+        '--cisco_username',
         help="Cisco server username",
     )
     setup_parser.add_argument(
-        '-vp',
-        '--vpn_password',
+        '-cp',
+        '--cisco_password',
         help="Cisco server password",
     )
 
